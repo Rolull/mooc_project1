@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latest Messages</title>
+</head>
+<body>
+    <h1>Latest Messages</h1>
+
+    {% if user.is_authenticated %}
+    <p>
+        Welcome, {{ user.username }}!
+        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="message_text" placeholder="Enter your message" required>
+        <button type="submit">Send</button>
+    </form>
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    {% else %}
+    <p>
+        <a href="{% url 'login' %}">Log in</a> or 
+        <a href="{% url 'register' %}">Register</a>
+    </p>
+    {% endif %}
+
+    <ul>
+        {% for message in messages %}
+            <li>
+                <strong>{{ message.user.username }}:</strong> {{ message.text }}
+                {% if user.is_authenticated %} {% comment %} FIX FLAW 4 {% if user.is_authenticated and message.user == user %}  {% endcomment %}
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete_message_id" value="{{ message.id }}">
+                    <button type="submit">Delete</button>
+                </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
